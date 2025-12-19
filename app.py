@@ -10,7 +10,12 @@ from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 # --- CONFIGURATION ---
-API_KEY = "AIzaSyAx9TunkefuJeNoCuex4p7xTh2akH_VOSU" 
+try:
+    API_KEY = st.secrets["GOOGLE_API_KEY"]
+except:
+    st.error("Secrets not found! Please create .streamlit/secrets.toml")
+    st.stop()
+    
 HISTORY_FILE = "history.json" # Kept for backward compatibility or migration if needed
 USERS_FILE = "users.json"
 
