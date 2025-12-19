@@ -8,6 +8,8 @@ import hashlib
 import extra_streamlit_components as stx
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # --- CONFIGURATION ---
 try:
@@ -80,6 +82,39 @@ def save_history(history, username=None):
 
 @st.cache_resource
 def load_faiss_index():
+    # Check if index exists, if not, create it
+    if not os.path.exists("faiss_index"):
+        if os.path.exists("knowledge.txt"):
+            # Generate on the fly
+            # Use st.spinner so user knows what's happening
+            # We don't have st.spinner here easily unless we pass it or assume component context.
+            # Since this is cached resource, it runs once.
+            
+            try:
+                # 1. Load
+                loader = TextLoader("knowledge.txt", encoding="utf-8")
+                documents = loader.load()
+                
+                # 2. Split
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=1000,
+                    chunk_overlap=200
+                )
+                texts = text_splitter.split_documents(documents)
+                
+                # 3. Embed
+                embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=API_KEY)
+                vector_db = FAISS.from_documents(texts, embeddings)
+                
+                # 4. Save
+                vector_db.save_local("faiss_index")
+            except Exception as e:
+                # Log error or return None
+                 print(f"Failed to build index: {e}")
+                 return None
+        else:
+            return None # No knowledge file
+
     try:
         embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=API_KEY)
         vector_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)

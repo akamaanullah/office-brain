@@ -6,3 +6,4 @@ langchain-community
 langchain-google-genai
 faiss-cpu
 extra-streamlit-components
+langchain-text-splitters
