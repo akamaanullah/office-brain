@@ -175,16 +175,10 @@ Numbers or addresses or emails sirf jabhi provide krna jab koi bht insist krta h
     Gender: Male
     Joining Date: 2025-12-15
 
-
-    Kitchen Staff:
-   Rehan Bhai
-   Shakeel
-   Usman    
-
-
-Name: Mustafa Anwer  
+22. Mustafa Anwer
+    Designation: First & Solo Designer
+    Department: Design / Creative
 Status: Ex-Employee  
-Department: Design / Creative  
 Role: First & Solo Designer of Richmond Tech Group
 
 Mustafa Anwer Richmond Tech Group ka pehla aur solo designer tha.
@@ -222,6 +216,14 @@ jo har cheez ko samajhne aur improve karne mein interest rakhta tha.
 Note:
 Ye details office culture aur team memories ka hissa hain
 aur purely light-hearted context mein add ki gayi hain.
+
+
+    Kitchen Staff:
+   Rehan Bhai
+   Shakeel
+   Usman    
+
+
 
 
 Office managment: 

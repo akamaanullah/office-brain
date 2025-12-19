@@ -5,6 +5,7 @@ import json
 import uuid
 import datetime
 import hashlib
+import time
 import extra_streamlit_components as stx
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -562,26 +563,46 @@ else:
             
             with st.chat_message("assistant", avatar=bot_icon):
                 with st.spinner("Thinking..."):
-                    response = chat_session.send_message(prompt)
-                    response_text = response.text
-                    st.markdown(response_text)
+                    # Retry logic for 429 errors
+                    max_retries = 3
+                    base_delay = 2 # seconds
+                    response_text = "I'm having trouble connecting. Please try again."
+                    
+                    for attempt in range(max_retries):
+                        try:
+                            response = chat_session.send_message(prompt)
+                            response_text = response.text
+                            break # Success, exit loop
+                        except Exception as e:
+                            if "429" in str(e):
+                                if attempt < max_retries - 1:
+                                    wait_time = base_delay * (2 ** attempt) # 2, 4, 8 seconds
+                                    time.sleep(wait_time)
+                                    continue
+                                else:
+                                    st.error("Server is busy (Rate Limit). Please wait 1 minute.")
+                                    response_text = None
+                            else:
+                                st.error(f"An error occurred: {e}")
+                                response_text = None
+                                break
+                    
+                    if response_text:
+                        st.markdown(response_text)
+                        # Append only on success
+                        st.session_state.messages.append({"role": "assistant", "content": response_text})
+
+                        # --- SAVE TO HISTORY ---
+                        session_title = get_session_title(st.session_state.messages)
+                        st.session_state.full_history[st.session_state.current_session_id] = {
+                            "title": session_title,
+                            "messages": st.session_state.messages,
+                            "timestamp": str(datetime.datetime.now())
+                        }
+                        
+                        # Save ONLY if not guest
+                        if not st.session_state.guest_mode:
+                            save_history(st.session_state.full_history, st.session_state.username)
                 
-            st.session_state.messages.append({"role": "assistant", "content": response_text})
-            
-            # --- SAVE TO HISTORY ---
-            session_title = get_session_title(st.session_state.messages)
-            st.session_state.full_history[st.session_state.current_session_id] = {
-                "title": session_title,
-                "messages": st.session_state.messages,
-                "timestamp": str(datetime.datetime.now())
-            }
-            
-            # Save ONLY if not guest
-            if not st.session_state.guest_mode:
-                save_history(st.session_state.full_history, st.session_state.username)
-            
         except Exception as e:
-            if "429" in str(e):
-                 st.error("Too many requests! Please wait a moment.")
-            else:
-                 st.error(f"An error occurred: {e}")
+             st.error(f"An error occurred: {e}")
