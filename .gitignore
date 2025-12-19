@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.log
+history_*.json
+faiss_index/
+# users.json is excluded if you want privacy, but included if you want these default users for the demo
+# secrets should not be committed, but for this demo API key is hardcoded (not ideal but works for quick deploy)

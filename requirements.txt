@@ -1,0 +1,8 @@
+streamlit
+groq
+google-generativeai
+langchain
+langchain-community
+langchain-google-genai
+faiss-cpu
+extra-streamlit-components
